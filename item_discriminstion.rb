@@ -61,32 +61,68 @@ end
 
 def check_question_quality(questions, test_results, cohorts)
   question_quality = Hash.new(0)
-
+  correct_ans = 0
+  total_answered = 0
+  correct_ans_cohort3 = 0
+  total_answered_cohort3 = 0
   questions.each do |question|
     cohorts[:top_cohort].each do |student|
       test_results.each do |result|
-        if result[:user_id] == student && result[:question] == question && result[:correct] == true
-          question_quality[question] += 1
-        end
+        if result[:user_id] == student && result[:question] == question 
+          if result[:correct] == true
+          # question_quality[question] += 1
+            correct_ans += 1
+            total_answered += 1
+          elsif result[:correct] == false
+            total_answered += 1
+          end
+        end 
       end
+
     end
+    p correct_ans, total_answered
+    question_quality[question] = (correct_ans.to_f/total_answered.to_f).round(2)
 
     cohorts[:bottom_cohort].each do |student|
       test_results.each do |result|
-        if result[:user_id] == student && result[:question] == question && result[:correct] == true
-          question_quality[question] -= 1
+        if result[:user_id] == student && result[:question] == question 
+          if result[:correct] == true
+          # question_quality[question] += 1
+            correct_ans_cohort3 += 1
+            total_answered_cohort3 += 1
+          elsif result[:correct] == false
+            total_answered_cohort3 += 1
+          end
         end
       end
     end
+    result = (correct_ans_cohort3.to_f/total_answered_cohort3.to_f).round(2)
+    question_quality[question] = (question_quality[question]  - result).round(2)
   end 
   return question_quality
+end
+
+def question_discrimination(question_quality)
+  item_discrimination = {}
+  question_quality.each do |question, percentage|
+    if percentage > 0.3
+      item_discrimination[question] = "Good question"
+    elsif percentage > 0 && percentage < 0.3
+      item_discrimination[question] = "Mediocre question"
+    else
+      item_discrimination[question] = "Error"
+    end
+  end
+  return item_discrimination
 end
 
 questions = find_questions(Test_results)
 students_percentage_details = calculate_percentage(Test_results)
 cohorts = categorizing_test_takers(students_percentage_details)
 question_quality = check_question_quality(questions, Test_results, cohorts)
-
+p question_quality
+item_discrimination = question_discrimination(question_quality)
+p item_discrimination
 
 
 
