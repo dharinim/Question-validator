@@ -77,7 +77,8 @@ class ItemDescrimination
       elsif result[:correct] == false
         total_answered += 1
       end
-    end   
+    end
+
     return correct_ans.to_f, total_answered.to_f
   end
 
@@ -96,15 +97,15 @@ class ItemDescrimination
         end
       end
 
-      question_quality[question] = (correct_ans_cohort_top/total_answered_cohort_top).round(@round_decimal)
+      question_quality[question] = (correct_ans_cohort_top/total_answered_cohort_top)
       @cohorts[:bottom_cohort].each do |student|
         @test_results.each do |result|
           correct_ans_cohort_bottom, total_answered_cohort_bottom = evaluate_answers(result, student, question, total_answered_cohort_bottom, correct_ans_cohort_bottom)
         end
       end
 
-      result = (correct_ans_cohort_bottom/total_answered_cohort_bottom).round(@round_decimal)
-      question_quality[question] = (question_quality[question]  - result).round(@round_decimal)
+      result = (correct_ans_cohort_bottom/total_answered_cohort_bottom)
+      question_quality[question] = (question_quality[question] - result).round(@round_decimal)
     end 
     return question_quality
   end
@@ -136,17 +137,22 @@ class ItemDescrimination
 
 end
 
-question_set_1 = ItemDescrimination.new(Test_results)
-questions = question_set_1.find_questions
-students_percentage_details = question_set_1.calculate_percentage
-# p students_percentage_details
-cohorts = question_set_1.categorizing_test_takers(students_percentage_details)
-# p cohorts
-question_quality = question_set_1.check_question_quality(questions)
-# p question_quality
-item_discrimination = question_set_1.question_discrimination(question_quality)
-p item_discrimination
+if __FILE__ == $0
+  question_set_1 = ItemDescrimination.new(Test_results)
 
+  questions = question_set_1.find_questions
+  
+  students_percentage_details = question_set_1.calculate_percentage
+  # p students_percentage_details
+  cohorts = question_set_1.categorizing_test_takers(students_percentage_details)
+  # p cohorts
+  question_quality = question_set_1.check_question_quality(questions)
+  # p question_quality
+  item_discrimination = question_set_1.question_discrimination(question_quality)
+  item_discrimination.each do |question, rating|
+    p "#{question} is #{rating}"
+  end
+end
 
 
 
